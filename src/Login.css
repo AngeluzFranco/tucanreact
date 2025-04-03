@@ -1,0 +1,123 @@
+/* Estilos para el contenedor principal */
+.login-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Panel izquierdo - Bienvenida */
+  .welcome-panel {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+  }
+  
+  .welcome-title {
+    color: #333;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  /* Panel derecho - Formulario */
+  .form-panel {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+  }
+  
+  .form-container {
+    width: 100%;
+    max-width: 350px;
+    padding: 0 20px;
+  }
+  
+  .form-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+  }
+  
+  /* Estilos del formulario */
+  .login-form {
+    width: 100%;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .input-wrapper {
+    position: relative;
+  }
+  
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #000;
+    background-color: transparent;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #333;
+  }
+  
+  /* Botón de submit */
+  .submit-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #555;
+  }
+  
+  /* Enlace "olvidé contraseña" */
+  .forgot-password {
+    text-align: center;
+  }
+  
+  .forgot-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+  }
+  
+  .forgot-link:hover {
+    color: #333;
+    text-decoration: underline;
+  }
