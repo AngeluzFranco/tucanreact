@@ -1,0 +1,13 @@
+.layout-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f9fafb; /* Fondo gris claro */
+  }
+  
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+  

@@ -1,11 +1,14 @@
 import { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext();
+// Exporta el contexto directamente
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
+  // En AuthContext.jsx
   const login = (userData) => {
+    console.log('Estableciendo usuario:', userData); // Debug
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
@@ -22,6 +25,11 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Hook personalizado para usar el contexto
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth debe usarse dentro de un AuthProvider');
+  }
+  return context;
 };

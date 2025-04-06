@@ -1,0 +1,42 @@
+/* components/Sidebar.css */
+.sidebar {
+    width: 190px;
+    background-color: #003399;
+    color: white;
+    padding: 20px 0;
+    height: 100vh;
+    position: fixed;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 0 20px 20px;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .menu-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .icon {
+    margin-right: 10px;
+  }
