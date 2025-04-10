@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login/Login';
+import Login from './components/login/Login';
 import EntrenadorLayout from "./layouts/EntrenadorLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,12 +15,17 @@ import Dashboard from './pages/entrenadores/dashboard/dashboard';
 import Calendario from './pages/entrenadores/calendario/calendario';
 import Estadisticas from './pages/entrenadores/estadisticas/Estadisticas';
 
+import Recuperar from "./components/restorePass/Recuperar";
+import ResetPassword from "./components/restorePass/ResetPassword";
+
 function App() {
   return (
     <AuthProvider>
       <Routes>
         {/* Ruta pública */}
         <Route path="/login" element={<Login />} />
+        <Route path="/recuperar" element={<Recuperar />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         
         {/* Rutas protegidas admin*/}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

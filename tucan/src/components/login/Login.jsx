@@ -142,6 +142,13 @@ const Login = () => {
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
+            
+            <div className="form-footer">
+              <a href="/recuperar" className="forgot-link">
+              Recuperar contraseña
+              </a>
+            </div>
+            
           </form>
         </div>
       </div>
