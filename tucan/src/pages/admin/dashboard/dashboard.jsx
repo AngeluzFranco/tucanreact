@@ -1,58 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/authContext';
 import './dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [teams, setTeams] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [newTeam, setNewTeam] = useState({
-    name: '',
-    city: '',
-    logo: '',
-    starters: '',
-    substitutes: '',
-    sport: '',
-    description: ''
+    nombre: '',
+    ciudad: '',
+    logo_url: '',
+    num_titulares: 0,
+    num_suplentes: 0,
+    deporte: '',
+    descripcion: ''
   });
 
-  const teams = [
-    {
-      id: 1,
-      name: 'Halcones Basketball',
-      type: 'Baloncesto',
-      wins: 8,
-      losses: 6,
-      image: '/basketball-net.jpg'
-    },
-    {
-      id: 2,
-      name: 'Real Madrid FC',
-      type: 'Fútbol',
-      wins: 15,
-      losses: 2,
-      image: '/soccer-stadium.jpg'
-    },
-    {
-      id: 3,
-      name: 'Lakers Club',
-      type: 'Baloncesto',
-      wins: 10,
-      losses: 5,
-      image: '/basketball-court.jpg'
-    },
-    {
-      id: 4,
-      name: 'Real Madrid FC',
-      type: 'Fútbol',
-      wins: 15,
-      losses: 2,
-      image: '/soccer-stadium.jpg'
-    }
-  ];
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/equipo/api/', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
 
-  const handleTeamClick = () => {
-    navigate(`/admin/estadisticas`);
+        if (!response.ok) throw new Error('Error al cargar equipos');
+        
+        const data = await response.json();
+        setTeams(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTeams();
+  }, [user.token]);
+
+  const handleTeamClick = (teamId) => {
+    navigate(`/admin/estadisticas/${teamId}`);
   };
 
   const handleInputChange = (e) => {
@@ -60,24 +54,47 @@ export default function Dashboard() {
     setNewTeam({ ...newTeam, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Nuevo equipo registrado:', newTeam);
-    setIsModalOpen(false);
-    setNewTeam({
-      name: '',
-      city: '',
-      logo: '',
-      starters: '',
-      substitutes: '',
-      sport: '',
-      description: ''
-    });
+    try {
+      const response = await fetch('http://localhost:8000/api/equipo/api/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(newTeam)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al crear equipo');
+      }
+
+      const createdTeam = await response.json();
+      setTeams([...teams, createdTeam]);
+      setIsModalOpen(false);
+      setNewTeam({
+        nombre: '',
+        ciudad: '',
+        logo_url: '',
+        num_titulares: 0,
+        num_suplentes: 0,
+        deporte: '',
+        descripcion: ''
+      });
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const filteredTeams = activeFilter === 'Todos'
-    ? teams
-    : teams.filter(team => team.type === activeFilter);
+  const filteredTeams = activeFilter === 'Todos' 
+    ? teams 
+    : teams.filter(team => team.deporte.nombre === activeFilter);
+
+  if (isLoading) return <div className="loading">Cargando equipos...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="dashboard-content">
@@ -140,24 +157,16 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="modal-header">
-              <h2>Registrar Nuevo Equipo</h2>
-              <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-                &times;
-              </button>
-            </div>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Nombre del Equipo</label>
                 <input
                   type="text"
-                  name="name"
-                  value={newTeam.name}
+                  name="nombre"
+                  value={newTeam.nombre}
                   onChange={handleInputChange}
                   required
                 />
@@ -166,65 +175,24 @@ export default function Dashboard() {
                 <label>Ciudad</label>
                 <input
                   type="text"
-                  name="city"
-                  value={newTeam.city}
+                  name="ciudad"
+                  value={newTeam.ciudad}
                   onChange={handleInputChange}
                   required
                 />
-              </div>
-              <div className="form-group">
-                <label>Logo (URL)</label>
-                <input
-                  type="url"
-                  name="logo"
-                  value={newTeam.logo}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/logo.jpg"
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Titulares</label>
-                  <input
-                    type="number"
-                    name="starters"
-                    value={newTeam.starters}
-                    onChange={handleInputChange}
-                    min="1"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Suplentes</label>
-                  <input
-                    type="number"
-                    name="substitutes"
-                    value={newTeam.substitutes}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
-                </div>
               </div>
               <div className="form-group">
                 <label>Deporte</label>
                 <select
-                  name="sport"
-                  value={newTeam.sport}
+                  name="deporte"
+                  value={newTeam.deporte}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="">Seleccione un deporte</option>
-                  <option value="Fútbol">Fútbol</option>
-                  <option value="Baloncesto">Baloncesto</option>
+                  <option value="1">Fútbol</option>
+                  <option value="2">Baloncesto</option>
                 </select>
-              </div>
-              <div className="form-group">
-                <label>Descripción</label>
-                <textarea
-                  name="description"
-                  value={newTeam.description}
-                  onChange={handleInputChange}
-                  rows="3"
-                />
               </div>
               <div className="form-actions">
                 <button
