@@ -1,9 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 import imagenTucan from '../../assets/tucanapp.png';
+
+const AuthContext = React.createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  const login = async (credentials) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/users/token/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Credenciales incorrectas');
+      }
+
+      const data = await response.json();
+      const userData = {
+        token: data.access,
+        email: credentials.email,
+        role: data.rol,
+        username: data.username
+      };
+
+      localStorage.setItem('auth', JSON.stringify(userData));
+      setUser(userData);
+
+      const redirectPath = {
+        'admin': '/admin/dashboard',
+        'entrenador': '/entrenador/dashboard'
+      }[data.rol] || '/';
+
+      navigate(redirectPath);
+
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('auth');
+    setUser(null);
+    navigate('/login');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -15,25 +74,6 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Configuración de roles y rutas
-  const roleConfig = {
-    'admin@gmail.com': { 
-      role: 'admin', 
-      path: '/admin/dashboard',
-      name: 'Administrador'
-    },
-    'entrenador@gmail.com': { 
-      role: 'entrenador', 
-      path: '/entrenador/dashboard',
-      name: 'Entrenador'
-    },
-    'oficialia@gmail.com': { 
-      role: 'oficialia', 
-      path: '/oficialia-partes',
-      name: 'Oficialía'
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredentials(prev => ({
@@ -44,29 +84,16 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Iniciando login..."); // Debug 1
-    
+    setIsLoading(true);
+    setError('');
+
     try {
-      const userConfig = roleConfig[credentials.email];
-      console.log("Config encontrada:", userConfig); // Debug 2
-      
-      if (!userConfig) throw new Error("Email no reconocido");
-      
-      const userData = {
-        email: credentials.email,
-        role: userConfig.role,
-        name: userConfig.name
-      };
-      
-      console.log("Datos a guardar:", userData); // Debug 3
-      login(userData); // Función de AuthContext
-      
-      console.log("Redirigiendo a:", userConfig.path); // Debug 4
-      navigate(userConfig.path, { replace: true });
-      
+      await login(credentials);
     } catch (error) {
-      console.error("Error en login:", error); // Debug 5
-      setError(error.message);
+      setError(error.message || 'Error al iniciar sesión');
+      console.error("Error de login:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -142,13 +169,6 @@ const Login = () => {
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
-            
-            <div className="form-footer">
-              <a href="/recuperar" className="forgot-link">
-              Recuperar contraseña
-              </a>
-            </div>
-            
           </form>
         </div>
       </div>
